@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="target-densitydpi=device-dpi, initial-scale=1.0, user-scalable=no" />
+<title>elegant auto | lead form</title>
+<link href='https://fonts.googleapis.com/css?family=Ubuntu:400,300,500,700' rel='stylesheet' type='text/css'>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<!--[if lt IE 9]>
+	<script src="js/html5shiv.js"></script>
+    <script src="js/respond.min.js"></script>
+<![endif]-->
+<script src='https://www.google.com/recaptcha/api.js'></script>
+</head>
+<body style="background:none;">
+    <div class="main_wrap">
+    <section id="contact_section">
+        <form id="contactform" action="contact.php" method="post" onsubmit="return ValidatorForm(this)">
+        <div class="alert alert-danger collapse"></div>
+            <div class="alert alert-success collapse"></div>
+            <div class="form-group">
+                <input type="text" class="form-control input-lg" placeholder="Full Name*" id="name">
+            </div>
+            <div class="form-group">
+                <input type="tel" class="form-control input-lg" placeholder="Mobile*" id="mobile">
+            </div>
+            <div class="form-group">
+                <input type="email" class="form-control input-lg" placeholder="Email*" id="email">
+            </div>
+            <div class="form-group">
+                <input type="tel" class="form-control input-lg" placeholder="Vehicle Details*" id="vehicledetails">
+            </div>
+            <div class="form-group">
+                <textarea class="form-control input-lg" placeholder="Message*" id="message" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <div class="g-recaptcha" data-sitekey="6LeHUj8UAAAAABLhuJQWQN_p_mLDnDt7UfYjvgCN"></div>
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-danger btn-block btn-lg" value="Book Now">
+            </div>
+        </form>
+    </section>
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script>
+	var s_timeout = '';
+         function ValidatorForm(theForm){
+           var form = $(theForm);
+            var nameField = $('#name').val();
+			 var emailField = $('#email').val();
+             var vehicleField = $('#vehicledetails').val();
+            var phoneField = $('#mobile').val();
+            var messageField = $('#message').val();
+            var recpatcha = grecaptcha.getResponse();
+			var mailfilter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                if ($.trim(nameField) == '') {
+                    $('.alert-danger').text('Please enter your name').addClass('in');
+                }else if(phoneField.length != 10){
+					$('.alert-danger').text('Please enter a valid mobile number').addClass('in');
+				}else if(!mailfilter.test(emailField)) {
+                    $('.alert-danger').text('Please enter a valid email address').addClass('in');
+                }else if ($.trim(vehicleField) == '') {
+                    $('.alert-danger').text('Please enter vehicle details').addClass('in');
+                }else if ($.trim(messageField) == '') {
+                    $('.alert-danger').text('Please enter your message').addClass('in');
+                } else{
+                     $.ajax({
+                        'url': 'contact.php',
+                        'type': 'POST',
+                        'data': { 'name': nameField, 'email': emailField, 'mobile': phoneField, 'vehicledetails': vehicleField, 'message': messageField, 'recpatcha': recpatcha}
+                    }).done(function( data ) {
+                            console.log(data);
+                            if(data == 'success'){
+                                $('.alert').removeClass('in');
+                                $('.alert-success').text('Thanks You for your query, out team member will contact you soon.').addClass('in');
+                                $('#email, #mobile, #name, #vehicledetails, #message').val('');
+                                grecaptcha.reset();
+							    s_timeout = setTimeout(function(){$('.alert').removeClass('in')}, 3000);
+                            }else if (data == 'missing captcha'){
+                                grecaptcha.reset();
+                                $('.alert').removeClass('in');
+                                $('.alert-danger').text('Please click on the reCAPTCHA box').addClass('in');
+                            }else if (data == 'wrong captcha'){
+                                grecaptcha.reset();
+                                $('.alert').removeClass('in');
+                                $('.alert-danger').text('reCAPTCHA verification failed. Please try again.').addClass('in');
+                            }else{
+                                grecaptcha.reset();
+                                $('.alert').removeClass('in');
+                                $('.alert-danger').text(data).addClass('in');
+                            }
+    				});
+               }
+			return false;
+        }
+		$(function(){
+			$('input, textarea').keyup(function(){
+				$('.alert-danger, .alert-success').removeClass('in');
+				clearTimeout(s_timeout);
+			});
+var $control = $('#message'),
+            textLimit = parseInt(100);
+        $control.on('keyup paste', function () {
+            $control.val($control.val().substring(0, textLimit));
+            
+        });
+	
+		});
+</script>
+
+</body>
+</html>
